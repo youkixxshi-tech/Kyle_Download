@@ -1,4 +1,4 @@
-import os
+မပါဘဲ os
 import re
 import aiohttp
 import asyncio
@@ -51,7 +51,7 @@ async def handle_tiktok(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         
                         await update.message.reply_video(
                             video=video_url, 
-                            caption="✅ Watermark မပါဘဲ ဒေါင်းလုဒ်ဆွဲပြီးပါပြီ။",
+                            caption="✅ကျေးဇူးပါ✨ ဒေါင်းလုဒ်ဆွဲပါ",
                             reply_markup=reply_markup
                         )
                         await status_msg.delete()
@@ -59,7 +59,7 @@ async def handle_tiktok(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         await status_msg.edit_text("❌ ဗီဒီယို ရှာမတွေ့ပါ။ Link ပြန်စစ်ပေးပါ။")
         except Exception as e:
             print(f"Error: {e}")
-            await status_msg.edit_text("⚠️ API Error တက်သွားပါတယ်။ ခဏနေမှ ပြန်စမ်းပါ။")
+            aawaitstatus_msg.edit_text("⚠️ API Error တက်သွားပါတယ်။ ခဏနေမှ ပြန်စမ်းပါ။")
 
 # --- 4. Main Function ---
 if __name__ == "__main__":
