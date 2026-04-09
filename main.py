@@ -3,7 +3,7 @@ import re
 import aiohttp
 from flask import Flask
 from threading import Thread
-from telegram import Update
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, MessageHandler, filters, ContextTypes
 
 # --- 1. Flask Web Server (Render အတွက်) ---
@@ -27,6 +27,7 @@ async def handle_tiktok(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     text = update.message.text
+
     if "tiktok.com" in text:
         links = re.findall(r'(https?://[^\s]+)', text)
         if not links: return
@@ -38,14 +39,28 @@ async def handle_tiktok(update: Update, context: ContextTypes.DEFAULT_TYPE):
             async with aiohttp.ClientSession() as session:
                 async with session.get(TIKTOK_API, params={'url': tiktok_url}) as response:
                     res_json = await response.json()
+                    
                     if res_json.get('code') == 0:
                         video_url = res_json['data']['play']
-                        await update.message.reply_video(video=video_url, caption="✅ Success!")
+                        
+                        # ခလုတ်လေး ဖန်တီးမယ် (Link နာမည် မပေါ်ဘဲ Join Channel ဆိုတဲ့ စာသားပဲ ပေါ်မယ်)
+                        keyboard = [
+                            [InlineKeyboardButton("Join Channel 📢", url="https://t.me/kgamechannel")]
+                        ]
+                        reply_markup = InlineKeyboardMarkup(keyboard)
+                        
+                        # ဗီဒီယို ပို့မယ်
+                        await update.message.reply_video(
+                            video=video_url, 
+                            caption="✅ Watermark မပါဘဲ ဒေါင်းလုဒ်ဆွဲပြီးပါပြီ။",
+                            reply_markup=reply_markup
+                        )
                         await status_msg.delete()
                     else:
-                        await status_msg.edit_text("❌ ရှာမတွေ့ပါ။")
-        except:
-            await status_msg.edit_text("⚠️ Error!")
+                        await status_msg.edit_text("❌ ဗီဒီယို ရှာမတွေ့ပါ။ Link ပြန်စစ်ပေးပါ။")
+        except Exception as e:
+            print(f"Error: {e}")
+            await status_msg.edit_text("⚠️ API Error တက်သွားပါတယ်။")
 
 # --- 4. Main ---
 if __name__ == "__main__":
@@ -55,4 +70,6 @@ if __name__ == "__main__":
     
     app = Application.builder().token(TOKEN).build()
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_tiktok))
+    
+    print("TikTok Bot Ready with Inline Button...")
     app.run_polling()
